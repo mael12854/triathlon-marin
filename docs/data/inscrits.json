@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-18T09:19:32.202Z",
+  "updated": "2026-10-18T11:51:38.200Z",
   "inscrits": [
     {
       "id": 1,
@@ -8,6 +8,14 @@
       "lieux": "Piscine + parc",
       "message": "ALLEZ MARIN !!!",
       "date": "2026-10-18T09:19:20Z"
+    },
+    {
+      "id": 2,
+      "prenom": "Maman",
+      "personnes": 1,
+      "lieux": "Parc",
+      "message": "Allez mon cœur ❤️",
+      "date": "2026-10-18T11:51:28Z"
     }
   ]
 }
