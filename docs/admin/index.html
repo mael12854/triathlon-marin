@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin · Triathlon de Marin</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%2333a6dc'/%3E%3Ccircle cx='48' cy='16' r='14' fill='%23e88a3c'/%3E%3Ccircle cx='80' cy='16' r='14' fill='%234cbb73'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="admin.css">
+<script src="admin.js" defer></script>
+</head>
+<body class="admin">
+
+<header class="topbar">
+  <a class="brand" href="../" aria-label="Retour au site">
+    <span class="dots" aria-hidden="true"><i class="b"></i><i class="o"></i><i class="g"></i></span>
+    <span>Triathlon de Marin · Admin</span>
+  </a>
+  <nav class="nav"><a href="../" class="pill-btn small">Voir le site</a></nav>
+</header>
+
+<main class="wrap">
+
+  <section class="box gate" id="gate">
+    <h1 class="gate-t">Espace admin</h1>
+    <form id="login-form" class="login-form">
+      <label class="afield grow">
+        <span>Code d'accès</span>
+        <input type="password" id="code" autocomplete="current-password" required>
+      </label>
+      <button class="pill-btn dark" type="submit">Entrer</button>
+    </form>
+    <p class="save-msg err" id="login-msg" role="alert"></p>
+  </section>
+
+  <section class="box warn" id="setup" hidden>
+    <h2 class="box-t">Encore une étape pour pouvoir modifier</h2>
+    <p>Vous pouvez tout consulter, mais pas encore modifier&nbsp;: il manque la clé GitHub dans Vercel.</p>
+    <ol>
+      <li>Créez une clé sur <a target="_blank" rel="noopener" href="https://github.com/settings/personal-access-tokens/new">GitHub → Fine-grained token</a>&nbsp;: <em>Only select repositories</em> → <strong>triathlon-marin</strong>, permissions <strong>Contents</strong> et <strong>Issues</strong> en «&nbsp;Read and write&nbsp;».</li>
+      <li>Dans Vercel&nbsp;: projet <strong>triathlon-marin</strong> → <em>Settings → Environment Variables</em>, ajoutez <code>GITHUB_TOKEN</code> avec la clé.</li>
+      <li>Relancez le dernier déploiement (<em>Deployments → … → Redeploy</em>).</li>
+    </ol>
+  </section>
+
+  <div class="admin-body" id="admin-body" hidden>
+  <div class="bar">
+    <div class="tabs" role="tablist" aria-label="Sections de l'admin">
+    <button role="tab" aria-selected="true" aria-controls="tab-stats" id="t-stats">Tableau de bord</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-people" id="t-people">Inscrits</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-sac" id="t-sac">Le sac</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-settings" id="t-settings">Réglages</button>
+    </div>
+    <button type="button" class="link-btn" id="logout">Se déconnecter</button>
+  </div>
+
+  <!-- Tableau de bord -->
+  <section role="tabpanel" id="tab-stats" aria-labelledby="t-stats" class="panel-stack">
+    <div class="tiles">
+      <div class="tile"><span class="tile-l">Supporters attendus</span><span class="tile-v" id="k-personnes">–</span></div>
+      <div class="tile"><span class="tile-l">Inscriptions</span><span class="tile-v" id="k-inscriptions">–</span></div>
+      <div class="tile"><span class="tile-l">Petits mots</span><span class="tile-v" id="k-messages">–</span></div>
+      <div class="tile"><span class="tile-l">Retirées</span><span class="tile-v" id="k-retires">–</span></div>
+    </div>
+    <div class="charts">
+      <figure class="box chart">
+        <figcaption><span class="chart-t">Où seront les supporters</span><span class="chart-s">Nombre de personnes, par lieu</span></figcaption>
+        <div class="chart-body" id="chart-lieux"></div>
+      </figure>
+      <figure class="box chart">
+        <figcaption><span class="chart-t">Supporters au fil du temps</span><span class="chart-s">Total cumulé de personnes inscrites</span></figcaption>
+        <div class="chart-body" id="chart-temps"></div>
+      </figure>
+      <figure class="box chart">
+        <figcaption><span class="chart-t">Taille des groupes</span><span class="chart-s">Nombre d'inscriptions selon le nombre de personnes</span></figcaption>
+        <div class="chart-body" id="chart-groupes"></div>
+      </figure>
+      <figure class="box chart">
+        <figcaption><span class="chart-t">Derniers petits mots</span><span class="chart-s">Les 5 plus récents</span></figcaption>
+        <ul class="last-msgs" id="last-msgs"></ul>
+      </figure>
+    </div>
+    <p class="note" id="data-note"></p>
+  </section>
+
+  <!-- Inscrits -->
+  <section role="tabpanel" id="tab-people" aria-labelledby="t-people" class="panel-stack" hidden>
+    <div class="box">
+      <div class="box-head">
+        <h2 class="box-t">Toutes les inscriptions</h2>
+        <button type="button" class="pill-btn small" id="refresh">Actualiser</button>
+      </div>
+      <p class="note">«&nbsp;Retirer&nbsp;» cache la personne du site (l'issue est fermée en «&nbsp;not planned&nbsp;»). «&nbsp;Remettre&nbsp;» l'affiche à nouveau. Le site se met à jour en 1 à 5 minutes.</p>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>#</th><th>Prénom(s)</th><th class="n">Pers.</th><th>Lieu</th><th>Petit mot</th><th>Date</th><th>Statut</th><th></th></tr></thead>
+          <tbody id="people-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sac -->
+  <section role="tabpanel" id="tab-sac" aria-labelledby="t-sac" class="panel-stack" hidden>
+    <div class="box">
+      <div class="box-head">
+        <h2 class="box-t">Dans mon sac</h2>
+        <button type="button" class="pill-btn dark small" data-save="sac">Enregistrer le sac</button>
+      </div>
+      <p class="note">La liste à cocher affichée sur le site. Les flèches changent l'ordre, la croix supprime.</p>
+      <div class="sac-cols">
+        <div class="sac-col b" data-sac="nage"><h3>Nage</h3><ul></ul><button type="button" class="add">+ Ajouter</button></div>
+        <div class="sac-col o" data-sac="velo"><h3>Vélo</h3><ul></ul><button type="button" class="add">+ Ajouter</button></div>
+        <div class="sac-col g" data-sac="course"><h3>Course</h3><ul></ul><button type="button" class="add">+ Ajouter</button></div>
+      </div>
+      <p class="save-msg" data-msg="sac" role="status"></p>
+    </div>
+  </section>
+
+  <!-- Réglages -->
+  <section role="tabpanel" id="tab-settings" aria-labelledby="t-settings" class="panel-stack" hidden>
+    <div class="box settings">
+      <div class="box-head">
+        <h2 class="box-t">Réglages du site</h2>
+        <button type="button" class="pill-btn dark small" data-save="settings">Enregistrer</button>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="s-open">
+        <span class="switch-ui" aria-hidden="true"></span>
+        <span><strong>Inscriptions ouvertes</strong><br><small>Décochez pour remplacer le formulaire par «&nbsp;Les inscriptions sont fermées&nbsp;».</small></span>
+      </label>
+      <label class="afield">
+        <span>Annonce en haut du site <em>(vide = pas d'annonce)</em></span>
+        <textarea id="s-annonce" rows="2" maxlength="200" placeholder="Ex. Rendez-vous à 9h devant la piscine !"></textarea>
+      </label>
+      <label class="afield">
+        <span>E-mail pour ceux qui n'ont pas de compte GitHub <em>(vide = masqué)</em></span>
+        <input type="email" id="s-email" placeholder="prenom@exemple.fr">
+      </label>
+      <p class="note">Le contenu de la présentation (textes, photos, dates) ne se modifie pas ici.</p>
+      <p class="save-msg" data-msg="settings" role="status"></p>
+    </div>
+  </section>
+
+  </div>
+</main>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+</body>
+</html>

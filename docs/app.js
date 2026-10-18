@@ -53,20 +53,68 @@
     ics.download = "triathlon-marin.ics";
   }
 
-  // ---------- liste du sac (gardée sur l'appareil) ----------
-  $$("[data-list]").forEach(function (box) {
+  // ---------- lecture des fichiers de données ----------
+  // Version la plus fraîche : directement dans le repo (sans attendre un nouveau déploiement).
+  function fetchData(file) {
+    var sources = [];
+    if (hasRepo) sources.push("https://raw.githubusercontent.com/" + cfg.owner + "/" + cfg.repo + "/" + cfg.branch + "/docs/data/" + file + "?t=" + Date.now());
+    sources.push(new URL("data/" + file, document.baseURI).href + "?t=" + Date.now());
+    function tryNext(i) {
+      if (i >= sources.length) return Promise.reject(new Error("introuvable"));
+      return fetch(sources[i], { cache: "no-store" })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .catch(function () { return tryNext(i + 1); });
+    }
+    return tryNext(0);
+  }
+
+  // ---------- liste du sac (cochée et gardée sur l'appareil) ----------
+  function setupSac(box) {
     var key = "sac-" + box.getAttribute("data-list");
     var saved = [];
     try { saved = JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { saved = []; }
     var inputs = $$("input", box);
-    inputs.forEach(function (input, i) {
-      input.checked = saved.indexOf(i) !== -1;
+    inputs.forEach(function (input) {
+      var name = input.parentNode.textContent.trim();
+      input.checked = saved.indexOf(name) !== -1;
       input.addEventListener("change", function () {
-        var on = inputs.map(function (x, j) { return x.checked ? j : -1; }).filter(function (j) { return j >= 0; });
+        var on = inputs.filter(function (x) { return x.checked; }).map(function (x) { return x.parentNode.textContent.trim(); });
         try { localStorage.setItem(key, JSON.stringify(on)); } catch (e) { /* stockage indisponible */ }
       });
     });
-  });
+  }
+
+  function renderSac(sac) {
+    $$("[data-list]").forEach(function (box) {
+      var items = sac && sac[box.getAttribute("data-list")];
+      if (Array.isArray(items)) {
+        $$("label", box).forEach(function (l) { l.remove(); });
+        items.forEach(function (item) {
+          var label = el("label");
+          var input = el("input");
+          input.type = "checkbox";
+          label.appendChild(input);
+          label.appendChild(document.createTextNode(item));
+          box.appendChild(label);
+        });
+      }
+      setupSac(box);
+    });
+  }
+
+  // ---------- réglages (modifiables depuis /admin) ----------
+  function applySettings(s) {
+    s = s || {};
+    renderSac(s.sac);
+    var banner = $("#annonce");
+    if (s.annonce) { banner.textContent = s.annonce; banner.hidden = false; }
+    if (s.inscriptionsOuvertes === false) {
+      form.hidden = true;
+      $("#signup-closed").hidden = false;
+    }
+    if (s.contactEmail) cfg.contactEmail = s.contactEmail;
+    setupMail();
+  }
 
   // ---------- formulaire d'inscription ----------
   var form = $("#signup-form");
@@ -80,15 +128,13 @@
     });
   });
 
-  if (cfg.contactEmail) {
-    $("#mail-fallback").hidden = false;
-    $("#mail-link").addEventListener("click", function (e) {
-      e.preventDefault();
-      var v = readForm();
-      var text = "Prénom(s) : " + (v.prenom || "") + "\nPersonnes : " + v.personnes + "\nOù : " + v.lieux + "\nMessage : " + (v.message || "");
-      location.href = "mailto:" + cfg.contactEmail + "?subject=" + encodeURIComponent("Inscription triathlon de Marin") + "&body=" + encodeURIComponent(text);
-    });
-  }
+  $("#mail-link").addEventListener("click", function (e) {
+    e.preventDefault();
+    var v = readForm();
+    var text = "Prénom(s) : " + (v.prenom || "") + "\nPersonnes : " + v.personnes + "\nOù : " + v.lieux + "\nMessage : " + (v.message || "");
+    location.href = "mailto:" + cfg.contactEmail + "?subject=" + encodeURIComponent("Inscription triathlon de Marin") + "&body=" + encodeURIComponent(text);
+  });
+  function setupMail() { $("#mail-fallback").hidden = !cfg.contactEmail; }
 
   function readForm() {
     var lieu = form.querySelector("input[name=lieux]:checked");
@@ -162,18 +208,7 @@
   }
 
   function load() {
-    var sources = [];
-    // Version la plus fraîche : directement dans le repo (pas besoin d'attendre GitHub Pages).
-    if (hasRepo) sources.push("https://raw.githubusercontent.com/" + cfg.owner + "/" + cfg.repo + "/" + cfg.branch + "/docs/data/inscrits.json?t=" + Date.now());
-    sources.push("data/inscrits.json?t=" + Date.now());
-
-    function tryNext(i) {
-      if (i >= sources.length) return Promise.reject(new Error("introuvable"));
-      return fetch(sources[i], { cache: "no-store" })
-        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-        .catch(function () { return tryNext(i + 1); });
-    }
-    return tryNext(0).then(render).catch(function () {
+    return fetchData("inscrits.json").then(render).catch(function () {
       status.textContent = "Impossible de charger la liste pour le moment.";
       return [];
     });
@@ -192,5 +227,6 @@
     }, 30000);
   }
 
+  fetchData("reglages.json").then(applySettings, function () { applySettings({}); });
   load();
 })();

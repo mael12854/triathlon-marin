@@ -35,8 +35,32 @@ Le compte et le repo GitHub sont indiqués dans `docs/config.js`.
 Option : dans `docs/config.js`, mettre une adresse dans `contactEmail` pour afficher un lien
 « Pas de compte GitHub ? Envoyez-nous un e-mail ».
 
+## Espace admin : `/admin`
+
+https://triathlon-marin.vercel.app/admin/ — protégé par un code d'accès.
+
+- **Tableau de bord** : chiffres clés et graphiques (personnes par lieu, inscriptions dans le temps, taille des groupes, derniers petits mots).
+- **Inscrits** : la liste complète, avec « Retirer » / « Remettre ».
+- **Le sac** : modifier la liste à cocher du site.
+- **Réglages** : ouvrir/fermer les inscriptions, annonce en haut du site, e-mail pour ceux sans compte GitHub.
+
+Le contenu de la présentation (textes, photos, dates) ne se modifie pas depuis l'admin.
+
+Variables à définir dans Vercel (*Settings → Environment Variables*) :
+
+| Nom | Rôle |
+|---|---|
+| `ADMIN_CODE` | le code d'accès à l'admin (déjà défini) |
+| `GITHUB_TOKEN` | clé GitHub *fine-grained*, limitée au repo `triathlon-marin`, permissions **Contents** et **Issues** en « Read and write ». Sans elle, l'admin est en lecture seule. |
+
+Après avoir ajouté ou changé une variable : *Deployments → … → Redeploy*.
+
+Les réglages sont enregistrés dans `docs/data/reglages.json`. Fichiers de l'admin :
+`docs/admin/` (la page), `api/admin.js` (la fonction Vercel), `lib/inscription.js` (lecture des issues, partagée avec l'Action).
+
 ## Gérer les inscriptions
 
+- **Le plus simple** : l'espace admin ci-dessus.
 - **Voir la liste** : onglet *Issues* (label `inscription`), ou le fichier `docs/data/inscrits.json`.
 - **Retirer quelqu'un** (doublon, spam) : fermer son issue avec **Close as not planned**, ou lui mettre le label `spam`.
 - **Modifier** : l'auteur (ou vous) modifie le texte de l'issue ; la liste suit.

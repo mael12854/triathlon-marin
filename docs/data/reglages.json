@@ -1,0 +1,10 @@
+{
+  "inscriptionsOuvertes": true,
+  "annonce": "",
+  "contactEmail": "",
+  "sac": {
+    "nage": ["Maillot", "Bonnet", "Lunettes", "Serviette", "Claquettes"],
+    "velo": ["Vélo vérifié", "Casque", "Gants", "Tenue chaude"],
+    "course": ["Baskets", "Dossard", "Gourde", "Goûter"]
+  }
+}

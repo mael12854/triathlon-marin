@@ -28,6 +28,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 body {
   margin: 0;
@@ -71,6 +72,9 @@ i.g, .g { background: var(--green); }
 i.y, .y { background: var(--yellow); }
 i.c { background: var(--cream); }
 i.n { background: var(--night); }
+
+/* ---------- annonce ---------- */
+.annonce { background: var(--night); color: var(--on-night); text-align: center; padding: 12px var(--pad); font-family: var(--display); font-weight: 600; font-size: clamp(1rem, 1.25vw, 22px); line-height: 1.35; }
 
 /* ---------- sections ---------- */
 .sec { --side: var(--pad); padding: var(--pad) max(var(--side), calc((100% - 1680px) / 2)); display: flex; flex-direction: column; gap: clamp(28px, 3.33vw, 64px); }
@@ -251,6 +255,7 @@ a.card:hover { transform: rotate(0deg) scale(1.02); }
 .choice span { display: inline-block; padding: 0.55em 1.1em; border-radius: 999px; background: var(--sand); transition: background .15s; }
 .choice input:checked + span { background: var(--blue); }
 .choice input:focus-visible + span { outline: 3px solid var(--blue-ink); outline-offset: 2px; }
+.panel.closed { gap: 10px; }
 .form-error { color: var(--red-ink); font-size: 18px; }
 .fine { font-size: clamp(0.95rem, 0.95vw, 18px); line-height: 1.45; opacity: 0.8; font-weight: 700; }
 .fine a { color: var(--blue-ink); }
