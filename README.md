@@ -19,15 +19,18 @@ avec l'inscription des supporters. Tout tourne sur **GitHub uniquement** : pas d
 > Il faut un compte GitHub (gratuit) pour s'inscrire. Les issues sont publiques :
 > le formulaire ne demande qu'un prénom, un nombre de personnes, le lieu et un petit mot.
 
-## Mise en ligne (une seule fois)
+## Mise en ligne
 
-1. Pousser ce repo sur GitHub. Il doit être **public** (GitHub Pages gratuit + inscriptions ouvertes à tous).
-2. **Settings → Pages** : *Source* = « Deploy from a branch », branche `main`, dossier `/docs`.
-3. **Settings → Actions → General → Workflow permissions** : cocher « Read and write permissions ».
-4. Le site est en ligne sur `https://<votre-compte>.github.io/<nom-du-repo>/`.
+Le site est hébergé sur **Vercel** : https://triathlon-marin.vercel.app
+(`vercel.json` lui dit de servir le dossier `docs/`). Chaque push sur `main` le met à jour ;
+les commits du robot qui ne touchent que `docs/data/` ne relancent pas de déploiement,
+car le site lit la liste des inscrits directement sur GitHub.
 
-Le compte et le repo sont devinés depuis l'adresse du site. Pour un nom de domaine perso,
-ou une branche autre que `main`, remplir `docs/config.js`.
+Réglage obligatoire côté GitHub (une seule fois) :
+**Settings → Actions → General → Workflow permissions** : cocher « Read and write permissions ».
+
+Le repo doit rester **public** pour que le site puisse lire la liste des inscrits.
+Le compte et le repo GitHub sont indiqués dans `docs/config.js`.
 
 Option : dans `docs/config.js`, mettre une adresse dans `contactEmail` pour afficher un lien
 « Pas de compte GitHub ? Envoyez-nous un e-mail ».

@@ -1,9 +1,9 @@
-// Réglages du site. Tout est optionnel : sur GitHub Pages
+// Réglages du site. Le compte et le repo sont nécessaires sur Vercel ; sur GitHub Pages
 // (https://<compte>.github.io/<repo>/), le compte et le repo sont devinés tout seuls.
 window.TRIATHLON_CONFIG = {
   // Compte et repo GitHub qui reçoivent les inscriptions (laisser vide = auto).
-  owner: "",
-  repo: "",
+  owner: "mael12854",
+  repo: "triathlon-marin",
   // Branche où le fichier des inscriptions est enregistré.
   branch: "main",
   // Jour de la course (année-mois-jour).
