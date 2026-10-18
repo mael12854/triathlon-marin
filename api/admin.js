@@ -1,15 +1,13 @@
 // Fonction Vercel derrière la page /admin.
-// Variables à définir dans Vercel (Settings → Environment Variables) :
-//   ADMIN_CODE   : le code d'accès à l'admin
-//   GITHUB_TOKEN : jeton GitHub (Contents + Issues en lecture/écriture sur ce repo)
+// À configurer une fois dans Vercel :
+//   ADMIN_CODE : le code d'accès (Settings → Environment Variables)
+//   un stockage Blob relié au projet (Storage → Create → Blob) : fournit BLOB_READ_WRITE_TOKEN tout seul
 const crypto = require("crypto");
-const { toEntry, isRemoved, clean } = require("../lib/inscription.js");
+const { hasStore, readSettings, writeSettings } = require("../lib/store.js");
 
 const OWNER = process.env.VERCEL_GIT_REPO_OWNER || "mael12854";
 const REPO = process.env.VERCEL_GIT_REPO_SLUG || "triathlon-marin";
 const BRANCH = "main";
-const SETTINGS_PATH = "docs/data/reglages.json";
-const SAC_KEYS = ["nage", "velo", "course"];
 
 function sameCode(given) {
   const expected = process.env.ADMIN_CODE || "";
@@ -19,60 +17,13 @@ function sameCode(given) {
   return crypto.timingSafeEqual(a, b);
 }
 
-async function gh(path, opts = {}) {
-  const headers = {
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-    "User-Agent": "triathlon-marin-admin",
-  };
-  if (process.env.GITHUB_TOKEN) headers.Authorization = "Bearer " + process.env.GITHUB_TOKEN;
-  if (opts.body) headers["Content-Type"] = "application/json";
-  const r = await fetch("https://api.github.com" + path, { ...opts, headers });
-  const data = r.status === 204 ? null : await r.json().catch(() => null);
-  if (!r.ok) {
-    const err = new Error((data && data.message) || "GitHub " + r.status);
-    err.status = r.status;
-    throw err;
-  }
-  return data;
-}
-
-async function listInscriptions() {
-  const all = [];
-  for (let page = 1; page <= 10; page++) {
-    const batch = await gh(`/repos/${OWNER}/${REPO}/issues?labels=inscription&state=all&per_page=100&page=${page}`);
-    all.push(...batch.filter((i) => !i.pull_request));
-    if (batch.length < 100) break;
-  }
-  return all
-    .map((issue) => {
-      const e = toEntry(issue);
-      return e && { ...e, retire: isRemoved(issue), url: issue.html_url, auteur: issue.user && issue.user.login };
-    })
-    .filter(Boolean)
-    .sort((a, b) => a.id - b.id);
-}
-
-async function readSettings() {
-  const file = await gh(`/repos/${OWNER}/${REPO}/contents/${SETTINGS_PATH}?ref=${BRANCH}`);
-  return { sha: file.sha, data: JSON.parse(Buffer.from(file.content, "base64").toString("utf8")) };
-}
-
-function validSettings(input) {
-  if (!input || typeof input !== "object") throw Object.assign(new Error("Réglages invalides."), { status: 400 });
-  const email = clean(input.contactEmail, 120);
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw Object.assign(new Error("Adresse e-mail invalide."), { status: 400 });
-  const sac = {};
-  for (const key of SAC_KEYS) {
-    const items = Array.isArray(input.sac && input.sac[key]) ? input.sac[key] : [];
-    sac[key] = items.map((x) => clean(x, 40)).filter(Boolean).slice(0, 15);
-  }
-  return {
-    inscriptionsOuvertes: input.inscriptionsOuvertes !== false,
-    annonce: clean(input.annonce, 200),
-    contactEmail: email,
-    sac,
-  };
+// La liste des inscrits est tenue à jour par l'Action GitHub dans le repo (public).
+async function readInscriptions() {
+  const url = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/docs/data/inscrits.json?t=${Date.now()}`;
+  const r = await fetch(url, { cache: "no-store" });
+  if (!r.ok) throw new Error("Liste des inscrits introuvable sur GitHub (" + r.status + ").");
+  const data = await r.json();
+  return (data.inscrits || []).map((x) => ({ ...x, url: `https://github.com/${OWNER}/${REPO}/issues/${x.id}` }));
 }
 
 module.exports = async (req, res) => {
@@ -89,55 +40,46 @@ module.exports = async (req, res) => {
     return res.status(401).json({ error: "Code incorrect." });
   }
 
-  const canWrite = Boolean(process.env.GITHUB_TOKEN);
+  const canWrite = hasStore();
   try {
     switch (body.action) {
       case "login":
         return res.json({ ok: true, canWrite });
 
       case "data": {
-        const [inscriptions, settings] = await Promise.all([listInscriptions(), readSettings()]);
-        return res.json({ inscriptions, reglages: settings.data, canWrite });
+        const [inscriptions, reglages] = await Promise.all([readInscriptions(), readSettings()]);
+        const masques = new Set(reglages.masques);
+        return res.json({
+          inscriptions: inscriptions.map((x) => ({ ...x, retire: masques.has(x.id) })),
+          reglages,
+          canWrite,
+        });
       }
 
       case "hide":
       case "show": {
-        if (!canWrite) return res.status(503).json({ error: "GITHUB_TOKEN manquant dans Vercel." });
+        if (!canWrite) return res.status(503).json({ error: "Le stockage Vercel Blob n'est pas encore relié au projet." });
         const n = parseInt(body.number, 10);
         if (!n) return res.status(400).json({ error: "Numéro manquant." });
-        const issue = await gh(`/repos/${OWNER}/${REPO}/issues/${n}`);
-        if (!(issue.labels || []).some((l) => l.name === "inscription")) return res.status(400).json({ error: "Ce n'est pas une inscription." });
-        const patch = body.action === "hide" ? { state: "closed", state_reason: "not_planned" } : { state: "open" };
-        await gh(`/repos/${OWNER}/${REPO}/issues/${n}`, { method: "PATCH", body: JSON.stringify(patch) });
-        if (body.action === "show") {
-          // Retire aussi un éventuel label « spam ».
-          await gh(`/repos/${OWNER}/${REPO}/issues/${n}/labels/spam`, { method: "DELETE" }).catch(() => {});
-        }
-        return res.json({ ok: true });
+        const current = await readSettings();
+        const set = new Set(current.masques);
+        if (body.action === "hide") set.add(n); else set.delete(n);
+        const saved = await writeSettings({ ...current, masques: [...set] });
+        return res.json({ ok: true, reglages: saved });
       }
 
       case "saveSettings": {
-        if (!canWrite) return res.status(503).json({ error: "GITHUB_TOKEN manquant dans Vercel." });
-        const next = validSettings(body.reglages);
+        if (!canWrite) return res.status(503).json({ error: "Le stockage Vercel Blob n'est pas encore relié au projet." });
         const current = await readSettings();
-        const content = JSON.stringify(next, null, 2) + "\n";
-        await gh(`/repos/${OWNER}/${REPO}/contents/${SETTINGS_PATH}`, {
-          method: "PUT",
-          body: JSON.stringify({
-            message: "Admin : mise à jour des réglages",
-            content: Buffer.from(content, "utf8").toString("base64"),
-            sha: current.sha,
-            branch: BRANCH,
-          }),
-        });
-        return res.json({ ok: true, reglages: next });
+        // Les inscriptions masquées ne se changent que par « Retirer » / « Remettre ».
+        const saved = await writeSettings({ ...(body.reglages || {}), masques: current.masques });
+        return res.json({ ok: true, reglages: saved });
       }
 
       default:
         return res.status(400).json({ error: "Action inconnue." });
     }
   } catch (e) {
-    const status = e.status >= 400 && e.status < 600 ? e.status : 500;
-    return res.status(status === 401 ? 502 : status).json({ error: "GitHub : " + e.message });
+    return res.status(500).json({ error: e.message });
   }
 };

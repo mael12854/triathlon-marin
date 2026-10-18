@@ -39,11 +39,11 @@
 
   <section class="box warn" id="setup" hidden>
     <h2 class="box-t">Encore une étape pour pouvoir modifier</h2>
-    <p>Vous pouvez tout consulter, mais pas encore modifier&nbsp;: il manque la clé GitHub dans Vercel.</p>
+    <p>Vous pouvez tout consulter, mais pas encore enregistrer&nbsp;: il faut relier un espace de stockage Vercel (aucune clé à copier).</p>
     <ol>
-      <li>Créez une clé sur <a target="_blank" rel="noopener" href="https://github.com/settings/personal-access-tokens/new">GitHub → Fine-grained token</a>&nbsp;: <em>Only select repositories</em> → <strong>triathlon-marin</strong>, permissions <strong>Contents</strong> et <strong>Issues</strong> en «&nbsp;Read and write&nbsp;».</li>
-      <li>Dans Vercel&nbsp;: projet <strong>triathlon-marin</strong> → <em>Settings → Environment Variables</em>, ajoutez <code>GITHUB_TOKEN</code> avec la clé.</li>
-      <li>Relancez le dernier déploiement (<em>Deployments → … → Redeploy</em>).</li>
+      <li>Dans Vercel, ouvrez le projet <strong>triathlon-marin</strong> → onglet <strong>Storage</strong>.</li>
+      <li><em>Create Database</em> → <strong>Blob</strong> → nom au choix → <em>Create</em>, puis reliez-le au projet (<em>Connect</em>). Si on vous demande l'accès, choisissez <strong>Public</strong>.</li>
+      <li>Onglet <em>Deployments</em> → <em>…</em> sur le dernier → <strong>Redeploy</strong>.</li>
     </ol>
   </section>
 
@@ -94,7 +94,7 @@
         <h2 class="box-t">Toutes les inscriptions</h2>
         <button type="button" class="pill-btn small" id="refresh">Actualiser</button>
       </div>
-      <p class="note">«&nbsp;Retirer&nbsp;» cache la personne du site (l'issue est fermée en «&nbsp;not planned&nbsp;»). «&nbsp;Remettre&nbsp;» l'affiche à nouveau. Le site se met à jour en 1 à 5 minutes.</p>
+      <p class="note">«&nbsp;Retirer&nbsp;» cache la personne du site, «&nbsp;Remettre&nbsp;» l'affiche à nouveau. Une nouvelle inscription apparaît ici 1 à 5 minutes après avoir été envoyée.</p>
       <div class="table-wrap">
         <table class="table">
           <thead><tr><th>#</th><th>Prénom(s)</th><th class="n">Pers.</th><th>Lieu</th><th>Petit mot</th><th>Date</th><th>Statut</th><th></th></tr></thead>

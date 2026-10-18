@@ -46,29 +46,24 @@ https://triathlon-marin.vercel.app/admin/ — protégé par un code d'accès.
 
 Le contenu de la présentation (textes, photos, dates) ne se modifie pas depuis l'admin.
 
-Variables à définir dans Vercel (*Settings → Environment Variables*) :
+À configurer une fois dans Vercel (aucune clé GitHub à créer) :
 
-| Nom | Rôle |
-|---|---|
-| `ADMIN_CODE` | le code d'accès à l'admin (déjà défini) |
-| `GITHUB_TOKEN` | clé GitHub *fine-grained*, limitée au repo `triathlon-marin`, permissions **Contents** et **Issues** en « Read and write ». Sans elle, l'admin est en lecture seule. |
+1. `ADMIN_CODE` dans *Settings → Environment Variables* : le code d'accès (déjà fait).
+2. Un stockage **Blob** relié au projet : onglet *Storage* → *Create Database* → *Blob* → *Connect*
+   (accès **Public** si on vous le demande). Vercel ajoute tout seul `BLOB_READ_WRITE_TOKEN`.
+3. *Deployments* → *…* → *Redeploy*.
 
-Après avoir ajouté ou changé une variable : *Deployments → … → Redeploy*.
+Sans le stockage Blob, l'admin fonctionne en lecture seule.
 
-Les réglages sont enregistrés dans `docs/data/reglages.json`. Fichiers de l'admin :
-`docs/admin/` (la page), `api/admin.js` (la fonction Vercel), `lib/inscription.js` (lecture des issues, partagée avec l'Action).
+Les réglages (sac, annonce, inscriptions ouvertes, personnes retirées) sont gardés dans Vercel Blob ;
+`docs/data/reglages.json` sert de valeurs par défaut. Fichiers : `docs/admin/` (la page),
+`api/admin.js` et `api/reglages.js` (fonctions Vercel), `lib/store.js` (stockage),
+`lib/inscription.js` (lecture des issues, utilisé par l'Action GitHub).
 
 ## Gérer les inscriptions
 
 - **Le plus simple** : l'espace admin ci-dessus.
 - **Voir la liste** : onglet *Issues* (label `inscription`), ou le fichier `docs/data/inscrits.json`.
-- **Retirer quelqu'un** (doublon, spam) : fermer son issue avec **Close as not planned**, ou lui mettre le label `spam`.
+- **Retirer quelqu'un** (doublon, spam) : bouton « Retirer » dans l'admin. Sur GitHub, fermer l'issue avec **Close as not planned** marche aussi.
 - **Modifier** : l'auteur (ou vous) modifie le texte de l'issue ; la liste suit.
 - **Tout recalculer** : onglet *Actions* → « Inscriptions » → *Run workflow*.
-
-## Tester en local
-
-```sh
-python3 -m http.server -d docs 8000
-# puis ouvrir http://localhost:8000
-```

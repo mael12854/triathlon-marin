@@ -103,8 +103,11 @@
   }
 
   // ---------- réglages (modifiables depuis /admin) ----------
+  var masques = [];
   function applySettings(s) {
     s = s || {};
+    masques = Array.isArray(s.masques) ? s.masques : [];
+    if (lastData) render(lastData);
     renderSac(s.sac);
     var banner = $("#annonce");
     if (s.annonce) { banner.textContent = s.annonce; banner.hidden = false; }
@@ -180,8 +183,10 @@
 
   function el(tag, text) { var n = document.createElement(tag); if (text != null) n.textContent = text; return n; }
 
+  var lastData = null;
   function render(data) {
-    var list = (data && data.inscrits) || [];
+    lastData = data;
+    var list = ((data && data.inscrits) || []).filter(function (x) { return masques.indexOf(x.id) === -1; });
     var total = list.reduce(function (s, x) { return s + (Number(x.personnes) || 1); }, 0);
     $("#n-personnes").textContent = total;
     $("#n-inscriptions").textContent = list.length;
@@ -227,6 +232,10 @@
     }, 30000);
   }
 
-  fetchData("reglages.json").then(applySettings, function () { applySettings({}); });
+  // Réglages de l'admin (Vercel), sinon ceux du repo.
+  fetch("/api/reglages", { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .catch(function () { return fetchData("reglages.json"); })
+    .then(applySettings, function () { applySettings({}); });
   load();
 })();

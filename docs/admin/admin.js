@@ -100,7 +100,7 @@
       renderTable();
       renderSac();
       renderSettings();
-      $("#data-note").textContent = "Données lues sur GitHub à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ".";
+      $("#data-note").textContent = "Données à jour à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + ".";
     }).catch(function (e) {
       $("#data-note").textContent = "Impossible de charger les données : " + e.message;
     });
@@ -363,8 +363,9 @@
         if (!x.retire && !confirm("Retirer « " + x.prenom + " » du site ?")) return;
         btn.disabled = true;
         btn.textContent = "…";
-        call(x.retire ? "show" : "hide", { number: x.id }).then(function () {
+        call(x.retire ? "show" : "hide", { number: x.id }).then(function (r) {
           x.retire = !x.retire;
+          if (r.reglages) state.reglages = r.reglages;
           renderTable();
           renderStats();
         }).catch(function (e) {
@@ -446,7 +447,7 @@
     btn.setAttribute("data-needs-auth", "");
     btn.addEventListener("click", function () {
       var msg = $("[data-msg=" + btn.getAttribute("data-save") + "]");
-      if (!state.canWrite) { msg.className = "save-msg err"; msg.textContent = "Il manque la clé GitHub dans Vercel (voir l'encadré en haut)."; return; }
+      if (!state.canWrite) { msg.className = "save-msg err"; msg.textContent = "Le stockage Vercel n'est pas encore relié (voir l'encadré en haut)."; return; }
       btn.disabled = true;
       msg.className = "save-msg";
       msg.textContent = "Enregistrement…";
@@ -455,7 +456,7 @@
         renderSac();
         renderSettings();
         msg.className = "save-msg ok";
-        msg.textContent = "Enregistré. Le site sera à jour d'ici quelques minutes.";
+        msg.textContent = "Enregistré. C'est en ligne sur le site.";
       }).catch(function (e) {
         msg.className = "save-msg err";
         msg.textContent = e.message;
