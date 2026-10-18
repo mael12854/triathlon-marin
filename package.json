@@ -3,6 +3,6 @@
   "private": true,
   "description": "Site du triathlon de Marin (fichiers statiques dans docs/, fonctions Vercel dans api/)",
   "dependencies": {
-    "@vercel/blob": "1.1.1"
+    "@vercel/blob": "2.8.2"
   }
 }

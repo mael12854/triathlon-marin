@@ -50,7 +50,7 @@ Le contenu de la présentation (textes, photos, dates) ne se modifie pas depuis 
 
 1. `ADMIN_CODE` dans *Settings → Environment Variables* : le code d'accès (déjà fait).
 2. Un stockage **Blob** relié au projet : onglet *Storage* → *Create Database* → *Blob* → *Connect*
-   (accès **Public** si on vous le demande). Vercel ajoute tout seul `BLOB_READ_WRITE_TOKEN`.
+   (public ou privé, les deux marchent). Vercel ajoute tout seul les variables `BLOB_…`.
 3. *Deployments* → *…* → *Redeploy*.
 
 Sans le stockage Blob, l'admin fonctionne en lecture seule.
