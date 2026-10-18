@@ -1,4 +1,13 @@
 {
-  "updated": null,
-  "inscrits": []
+  "updated": "2026-10-18T09:19:32.202Z",
+  "inscrits": [
+    {
+      "id": 1,
+      "prenom": "Maël - Tournage",
+      "personnes": 1,
+      "lieux": "Piscine + parc",
+      "message": "ALLEZ MARIN !!!",
+      "date": "2026-10-18T09:19:20Z"
+    }
+  ]
 }
