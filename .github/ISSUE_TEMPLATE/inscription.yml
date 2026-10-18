@@ -1,0 +1,35 @@
+name: Inscription supporter
+description: Je viens encourager Marin au triathlon !
+title: "[Inscription] "
+labels: ["inscription"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci ! Vérifiez vos infos puis cliquez sur **Create** en bas de la page.
+        Tout ce qui est écrit ici est public : mettez seulement un prénom.
+  - type: input
+    id: prenom
+    attributes:
+      label: Prénom(s)
+      placeholder: Mamie Jo et Papi Luc
+    validations:
+      required: true
+  - type: input
+    id: personnes
+    attributes:
+      label: Nombre de personnes
+      placeholder: "1"
+    validations:
+      required: true
+  - type: input
+    id: lieux
+    attributes:
+      label: Où serez-vous ?
+      description: "Piscine + parc, Piscine ou Parc"
+      placeholder: Piscine + parc
+  - type: textarea
+    id: message
+    attributes:
+      label: Un petit mot pour Marin
+      placeholder: Allez Marin, tu vas tout déchirer !

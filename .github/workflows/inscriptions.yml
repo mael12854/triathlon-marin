@@ -1,0 +1,50 @@
+name: Inscriptions
+
+# Chaque inscription arrive comme une issue GitHub.
+# Ce workflow recopie toutes les inscriptions dans docs/data/inscrits.json,
+# le fichier que le site affiche.
+on:
+  issues:
+    types: [opened, edited, closed, reopened, labeled, unlabeled, deleted]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: inscriptions
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      startsWith(github.event.issue.title, '[Inscription]') ||
+      contains(github.event.issue.labels.*.name, 'inscription')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mettre à jour la liste des inscrits
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = require('./.github/scripts/inscriptions.js');
+            await run({ github, context, core });
+
+      - name: Enregistrer dans le repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/inscrits.json
+          if git diff --cached --quiet; then
+            echo "Rien de nouveau."
+            exit 0
+          fi
+          git commit -m "Inscriptions : mise à jour de la liste"
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin "${GITHUB_REF_NAME}" && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
