@@ -250,8 +250,8 @@ a.card:hover { transform: rotate(0deg) scale(1.02); }
 .stepper input { text-align: center; -moz-appearance: textfield; }
 .stepper input::-webkit-inner-spin-button, .stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .choices { display: flex; flex-wrap: wrap; gap: 10px; }
-.choice { cursor: pointer; }
-.choice input { position: absolute; opacity: 0; pointer-events: none; }
+.choice { cursor: pointer; position: relative; }
+.choice input { position: absolute; left: 0; top: 0; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
 .choice span { display: inline-block; padding: 0.55em 1.1em; border-radius: 999px; background: var(--sand); transition: background .15s; }
 .choice input:checked + span { background: var(--blue); }
 .choice input:focus-visible + span { outline: 3px solid var(--blue-ink); outline-offset: 2px; }
