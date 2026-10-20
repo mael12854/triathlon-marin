@@ -52,7 +52,9 @@ Option : dans `docs/config.js`, mettre une adresse dans `contactEmail` pour affi
   d'accueil pour le triathlon suivant sans la casser.
 
 Pour archiver un triathlon : copier `docs/` (sans `admin/` ni `anciens/`) dans `docs/anciens/<nom>/`,
-y figer les fichiers de `data/` et mettre `archive: true` dans son `config.js`.
+y figer les fichiers de `data/`, mettre `archive: true` dans son `config.js`, et retirer
+les formulaires (`<form>`) et la fenêtre `<dialog id="sent">` de son `index.html` : on ne peut plus s'inscrire
+à un ancien triathlon.
 
 ## Espace admin : `/admin`
 

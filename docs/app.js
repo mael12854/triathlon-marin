@@ -105,54 +105,56 @@
 
   // ---------- réglages (modifiables depuis /admin) ----------
   var masques = [], masquesAvec = [];
+  // Ferme un formulaire (s'il existe encore sur la page) et affiche son message « fermé ».
+  function closeForm(f, closedSel) {
+    if (f) f.hidden = true;
+    var panel = $(closedSel);
+    if (panel) panel.hidden = false;
+  }
+
   function applySettings(s) {
     s = s || {};
     masques = Array.isArray(s.masques) ? s.masques : [];
     masquesAvec = Array.isArray(s.masquesAvec) ? s.masquesAvec : [];
     if (lastData) render(lastData);
     if (lastAvec) renderAvec(lastAvec);
-    if (s.avecOuvert === false) {
-      avecForm.hidden = true;
-      $("#avec-closed").hidden = false;
-    }
+    if (s.avecOuvert === false) closeForm(avecForm, "#avec-closed");
     renderSac(s.sac);
     var banner = $("#annonce");
     if (s.annonce) { banner.textContent = s.annonce; banner.hidden = false; }
-    if (s.inscriptionsOuvertes === false) {
-      form.hidden = true;
-      $("#signup-closed").hidden = false;
-    }
+    if (s.inscriptionsOuvertes === false) closeForm(form, "#signup-closed");
     if (s.contactEmail) cfg.contactEmail = s.contactEmail;
     setupMail();
     // Page d'archive : tout est figé, pas de formulaires.
     if (cfg.archive) {
-      form.hidden = true;
-      $("#signup-closed").hidden = false;
-      avecForm.hidden = true;
-      $("#avec-closed").hidden = false;
-      $("#mail-fallback").hidden = true;
+      closeForm(form, "#signup-closed");
+      closeForm(avecForm, "#avec-closed");
     }
   }
 
   // ---------- formulaire d'inscription ----------
   var form = $("#signup-form");
   var err = $("#form-error");
-  var count = form.elements.personnes;
+  var count = form ? form.elements.personnes : null;
 
-  $$("[data-step]", form).forEach(function (btn) {
+  if (form) $$("[data-step]", form).forEach(function (btn) {
     btn.addEventListener("click", function () {
       var v = parseInt(count.value, 10) || 1;
       count.value = Math.min(20, Math.max(1, v + Number(btn.getAttribute("data-step"))));
     });
   });
 
-  $("#mail-link").addEventListener("click", function (e) {
+  var mailLink = $("#mail-link");
+  if (mailLink) mailLink.addEventListener("click", function (e) {
     e.preventDefault();
     var v = readForm();
     var text = "Prénom(s) : " + (v.prenom || "") + "\nPersonnes : " + v.personnes + "\nOù : " + v.lieux + "\nMessage : " + (v.message || "");
     location.href = "mailto:" + cfg.contactEmail + "?subject=" + encodeURIComponent("Inscription triathlon de Marin") + "&body=" + encodeURIComponent(text);
   });
-  function setupMail() { $("#mail-fallback").hidden = !cfg.contactEmail; }
+  function setupMail() {
+    var box = $("#mail-fallback");
+    if (box) box.hidden = !cfg.contactEmail || cfg.archive;
+  }
 
   function readForm() {
     var lieu = form.querySelector("input[name=lieux]:checked");
@@ -169,7 +171,7 @@
     err.hidden = !msg;
   }
 
-  form.addEventListener("submit", function (e) {
+  if (form) form.addEventListener("submit", function (e) {
     e.preventDefault();
     var v = readForm();
     form.elements.prenom.setAttribute("aria-invalid", v.prenom ? "false" : "true");
@@ -207,7 +209,7 @@
   var avecErr = $("#avec-error");
   function avecError(msg) { avecErr.textContent = msg; avecErr.hidden = !msg; }
 
-  avecForm.addEventListener("submit", function (e) {
+  if (avecForm) avecForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var prenom = avecForm.elements.prenom.value.trim();
     var epreuves = $$("input[name=epreuves]:checked", avecForm).map(function (x) { return x.value; });

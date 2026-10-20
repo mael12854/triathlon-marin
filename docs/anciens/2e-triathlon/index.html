@@ -242,40 +242,10 @@
     <h2 class="h-l">Ils sont venus encourager Marin&nbsp;!</h2>
   </div>
   <div class="signup-grid">
-    <div class="panel closed" id="signup-closed" hidden>
+    <div class="panel closed" id="signup-closed">
       <p class="h-m">C'est terminé&nbsp;!</p>
       <p class="fine">Merci à tous les supporters venus encourager Marin au bord du bassin et dans le parc.</p>
     </div>
-    <form class="panel" id="signup-form" novalidate>
-      <label class="field">
-        <span>Prénom(s)</span>
-        <input name="prenom" required maxlength="60" autocomplete="given-name" placeholder="Ex. Mamie Jo et Papi Luc">
-      </label>
-      <div class="field">
-        <span>Combien de personnes&nbsp;?</span>
-        <div class="stepper">
-          <button type="button" data-step="-1" aria-label="Moins">−</button>
-          <input name="personnes" type="number" min="1" max="20" value="1" inputmode="numeric" aria-label="Nombre de personnes">
-          <button type="button" data-step="1" aria-label="Plus">+</button>
-        </div>
-      </div>
-      <fieldset class="field">
-        <legend>Où serez-vous&nbsp;?</legend>
-        <div class="choices">
-          <label class="choice"><input type="radio" name="lieux" value="Piscine + parc" checked><span>Aux deux&nbsp;!</span></label>
-          <label class="choice"><input type="radio" name="lieux" value="Piscine"><span>Piscine</span></label>
-          <label class="choice"><input type="radio" name="lieux" value="Parc"><span>Parc</span></label>
-        </div>
-      </fieldset>
-      <label class="field">
-        <span>Un petit mot pour Marin <em>(facultatif)</em></span>
-        <textarea name="message" rows="3" maxlength="280" placeholder="Allez Marin, tu vas tout déchirer !"></textarea>
-      </label>
-      <p class="form-error" id="form-error" role="alert" hidden></p>
-      <button class="pill-btn dark wide" type="submit">Envoyer mon inscription</button>
-      <p class="fine">L'inscription s'enregistre sur GitHub&nbsp;: une page GitHub s'ouvre, il suffit de cliquer sur <strong>«&nbsp;Create&nbsp;»</strong>. Il faut un compte GitHub (gratuit). Ce que vous écrivez est public&nbsp;: mettez seulement un prénom.</p>
-      <p class="fine" id="mail-fallback" hidden>Pas de compte GitHub&nbsp;? <a href="#" id="mail-link">Envoyez-nous un e-mail</a>, on vous ajoute.</p>
-    </form>
     <div class="panel board" aria-live="polite">
       <div class="tally">
         <div><span class="tally-n" id="n-personnes">0</span><span class="tally-l">supporters</span></div>
@@ -297,31 +267,10 @@
   <p class="lead">Choisis ce que tu fais avec moi&nbsp;: la nage, le vélo, la course… ou tout&nbsp;!</p>
   <p class="no-stress">Sans engagement&nbsp;: si tu es absent le jour J, ce n'est pas grave&nbsp;!</p>
   <div class="signup-grid">
-    <div class="panel closed" id="avec-closed" hidden>
+    <div class="panel closed" id="avec-closed">
       <p class="h-m">Les inscriptions sont fermées.</p>
       <p class="fine">Merci à tous ceux qui viennent avec Marin&nbsp;!</p>
     </div>
-    <form class="panel" id="avec-form" novalidate>
-      <label class="field">
-        <span>Prénom(s)</span>
-        <input name="prenom" required maxlength="60" autocomplete="given-name" placeholder="Ex. Léa">
-      </label>
-      <fieldset class="field">
-        <legend>Je fais avec Marin… <em>(une ou plusieurs)</em></legend>
-        <div class="choices multi">
-          <label class="choice c-b"><input type="checkbox" name="epreuves" value="Nage"><span>Nage</span></label>
-          <label class="choice c-o"><input type="checkbox" name="epreuves" value="Vélo"><span>Vélo</span></label>
-          <label class="choice c-g"><input type="checkbox" name="epreuves" value="Course"><span>Course</span></label>
-        </div>
-      </fieldset>
-      <label class="field">
-        <span>Un petit mot pour Marin <em>(facultatif)</em></span>
-        <textarea name="message" rows="3" maxlength="280" placeholder="On pédale ensemble !"></textarea>
-      </label>
-      <p class="form-error" id="avec-error" role="alert" hidden></p>
-      <button class="pill-btn dark wide" type="submit">Je fais le triathlon avec Marin</button>
-      <p class="fine">L'inscription s'enregistre sur GitHub&nbsp;: une page GitHub s'ouvre, il suffit de cliquer sur <strong>«&nbsp;Create&nbsp;»</strong>. Il faut un compte GitHub (gratuit). Ce que vous écrivez est public&nbsp;: mettez seulement un prénom.</p>
-    </form>
     <div class="panel board" aria-live="polite">
       <div class="tally">
         <div><span class="tally-n" id="n-avec">0</span><span class="tally-l">avec Marin</span></div>
@@ -358,12 +307,6 @@
   <a class="pill-btn dark" href="../">Anciens triathlons</a>
 </footer>
 
-<dialog id="sent" class="sent">
-  <p class="h-m">Presque fini&nbsp;!</p>
-  <p>Sur la page GitHub qui vient de s'ouvrir, cliquez sur <strong>«&nbsp;Create&nbsp;»</strong>. Votre prénom apparaîtra ici d'ici quelques minutes.</p>
-  <p class="fine">La page ne s'est pas ouverte&nbsp;? <a id="sent-link" target="_blank" rel="noopener" href="#">Cliquez ici</a>.</p>
-  <form method="dialog"><button class="pill-btn dark">D'accord</button></form>
-</dialog>
 
 </body>
 </html>
