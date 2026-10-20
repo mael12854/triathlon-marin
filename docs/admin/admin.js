@@ -4,7 +4,7 @@
   var API = "/api/admin";
   var KEY = "triathlon-admin-code";
   var SAC_KEYS = ["nage", "velo", "course"];
-  var state = { code: "", canWrite: false, inscriptions: [], reglages: null };
+  var state = { code: "", canWrite: false, inscriptions: [], avec: [], reglages: null };
 
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -94,6 +94,7 @@
     $("#data-note").textContent = "Chargement…";
     return call("data").then(function (d) {
       state.inscriptions = d.inscriptions || [];
+      state.avec = d.avec || [];
       state.reglages = d.reglages || {};
       state.canWrite = d.canWrite;
       renderStats();
@@ -105,7 +106,7 @@
       $("#data-note").textContent = "Impossible de charger les données : " + e.message;
     });
   }
-  $("#refresh").addEventListener("click", refresh);
+  $$("[data-refresh]").forEach(function (b) { b.addEventListener("click", refresh); });
 
   function actifs() { return state.inscriptions.filter(function (x) { return !x.retire; }); }
   var fmtDate = new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -117,7 +118,8 @@
     $("#k-personnes").textContent = total;
     $("#k-inscriptions").textContent = list.length;
     $("#k-messages").textContent = list.filter(function (x) { return x.message; }).length;
-    $("#k-retires").textContent = state.inscriptions.length - list.length;
+    $("#k-retires").textContent = (state.inscriptions.length - list.length) + (state.avec.length - avecActifs().length);
+    $("#k-avec").textContent = avecActifs().length;
 
     var ul = $("#last-msgs");
     ul.textContent = "";
@@ -183,21 +185,13 @@
     box.appendChild(el("p", "empty", text));
   }
 
-  // 1. Personnes par lieu (barres horizontales).
-  function chartLieux(box) {
-    var list = actifs();
-    if (!list.length) return emptyMsg(box, "Aucune inscription pour l'instant.");
-    var sum = function (f) { return list.filter(f).reduce(function (s, x) { return s + x.personnes; }, 0); };
-    var rows = [
-      { label: "Piscine", value: sum(function (x) { return x.lieux !== "Parc"; }) },
-      { label: "Parc", value: sum(function (x) { return x.lieux !== "Piscine"; }) }
-    ];
-    var both = sum(function (x) { return x.lieux === "Piscine + parc"; });
+  // Barres horizontales (une seule série, une seule couleur).
+  function hbars(box, rows, ariaLabel, unit) {
     var W = Math.max(280, box.clientWidth), labelW = 70, valW = 40, rowH = 44, bar = 24, top = 4;
     var plotW = W - labelW - valW;
     var max = Math.max.apply(null, rows.map(function (r) { return r.value; })) || 1;
     var H = top + rows.length * rowH;
-    var svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Personnes par lieu" });
+    var svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": ariaLabel });
     rows.forEach(function (r, i) {
       var y = top + i * rowH;
       var w = Math.max(r.value ? 2 : 0, (r.value / max) * plotW);
@@ -206,11 +200,38 @@
       svg.appendChild(hit);
       svg.appendChild(sv("path", { d: barPath(labelW, y + (rowH - bar) / 2, w, bar, true), class: "bar" }));
       svg.appendChild(sv("text", { x: labelW + w + 8, y: y + rowH / 2 + 5, class: "val" }, String(r.value)));
-      hitTarget(hit, r.value + (r.value > 1 ? " personnes" : " personne"), r.label);
+      hitTarget(hit, r.value + " " + unit + (r.value > 1 ? "s" : ""), r.label);
     });
     box.textContent = "";
     box.appendChild(svg);
+  }
+
+  // 1. Personnes par lieu.
+  function chartLieux(box) {
+    var list = actifs();
+    if (!list.length) return emptyMsg(box, "Aucune inscription pour l'instant.");
+    var sum = function (f) { return list.filter(f).reduce(function (s, x) { return s + x.personnes; }, 0); };
+    hbars(box, [
+      { label: "Piscine", value: sum(function (x) { return x.lieux !== "Parc"; }) },
+      { label: "Parc", value: sum(function (x) { return x.lieux !== "Piscine"; }) }
+    ], "Personnes par lieu", "personne");
+    var both = sum(function (x) { return x.lieux === "Piscine + parc"; });
     box.appendChild(el("p", "note", both + " personne" + (both > 1 ? "s viennent" : " vient") + " aux deux lieux et compte" + (both > 1 ? "nt" : "") + " dans les deux barres."));
+  }
+
+  // 1 bis. Qui fait quoi avec Marin.
+  function avecActifs() { return state.avec.filter(function (x) { return !x.retire; }); }
+  function chartAvec(box) {
+    var list = avecActifs();
+    if (!list.length) return emptyMsg(box, "Personne ne s'est encore inscrit.");
+    var n = function (k) { return list.filter(function (x) { return (x.epreuves || []).indexOf(k) !== -1; }).length; };
+    hbars(box, [
+      { label: "Nage", value: n("nage") },
+      { label: "Vélo", value: n("velo") },
+      { label: "Course", value: n("course") }
+    ], "Nombre de personnes par épreuve avec Marin", "personne");
+    var all = list.filter(function (x) { return (x.epreuves || []).length === 3; }).length;
+    if (all) box.appendChild(el("p", "note", all + " personne" + (all > 1 ? "s font" : " fait") + " les trois épreuves avec Marin."));
   }
 
   // 2. Total cumulé dans le temps (ligne en escalier + repère vertical au survol).
@@ -322,24 +343,26 @@
   function drawCharts() {
     if ($("#tab-stats").hidden || body.hidden) return;
     chartLieux($("#chart-lieux"));
+    chartAvec($("#chart-avec"));
     chartTemps($("#chart-temps"));
     chartGroupes($("#chart-groupes"));
   }
   var resizeTimer;
   window.addEventListener("resize", function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawCharts, 150); });
 
-  // ---------- inscrits ----------
-  function renderTable() {
-    var tbody = $("#people-rows");
+  // ---------- listes (supporters et « avec Marin ») ----------
+  var NOMS = { nage: "Nage", velo: "Vélo", course: "Course" };
+
+  function renderList(tbody, list, liste, cells) {
     tbody.textContent = "";
-    if (!state.inscriptions.length) {
+    if (!list.length) {
       var tr0 = el("tr"), td0 = el("td", null, "Aucune inscription.");
       td0.colSpan = 8;
       tr0.appendChild(td0);
       tbody.appendChild(tr0);
       return;
     }
-    state.inscriptions.slice().reverse().forEach(function (x) {
+    list.slice().reverse().forEach(function (x) {
       var tr = el("tr", x.retire ? "off" : "");
       var tdId = el("td");
       var a = el("a", null, "#" + x.id);
@@ -347,8 +370,7 @@
       tdId.appendChild(a);
       tr.appendChild(tdId);
       tr.appendChild(el("td", null, x.prenom));
-      tr.appendChild(el("td", "n", String(x.personnes)));
-      tr.appendChild(el("td", null, x.lieux));
+      cells(x).forEach(function (c) { tr.appendChild(c); });
       tr.appendChild(el("td", "msg", x.message || "—"));
       tr.appendChild(el("td", null, x.date ? fmtDate.format(new Date(x.date)) : ""));
       var st = el("td");
@@ -363,7 +385,7 @@
         if (!x.retire && !confirm("Retirer « " + x.prenom + " » du site ?")) return;
         btn.disabled = true;
         btn.textContent = "…";
-        call(x.retire ? "show" : "hide", { number: x.id }).then(function (r) {
+        call(x.retire ? "show" : "hide", { number: x.id, liste: liste }).then(function (r) {
           x.retire = !x.retire;
           if (r.reglages) state.reglages = r.reglages;
           renderTable();
@@ -377,6 +399,17 @@
       act.appendChild(btn);
       tr.appendChild(act);
       tbody.appendChild(tr);
+    });
+  }
+
+  function renderTable() {
+    renderList($("#people-rows"), state.inscriptions, "supporters", function (x) {
+      return [el("td", "n", String(x.personnes)), el("td", null, x.lieux)];
+    });
+    renderList($("#avec-rows"), state.avec, "avec", function (x) {
+      var td = el("td");
+      (x.epreuves || []).forEach(function (k) { td.appendChild(el("span", "chip " + k, NOMS[k] || k)); });
+      return [td];
     });
   }
 
@@ -426,6 +459,7 @@
   function renderSettings() {
     var r = state.reglages || {};
     $("#s-open").checked = r.inscriptionsOuvertes !== false;
+    $("#s-avec").checked = r.avecOuvert !== false;
     $("#s-annonce").value = r.annonce || "";
     $("#s-email").value = r.contactEmail || "";
   }
@@ -437,6 +471,7 @@
     });
     return {
       inscriptionsOuvertes: $("#s-open").checked,
+      avecOuvert: $("#s-avec").checked,
       annonce: $("#s-annonce").value.trim(),
       contactEmail: $("#s-email").value.trim(),
       sac: sac

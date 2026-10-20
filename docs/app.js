@@ -103,11 +103,17 @@
   }
 
   // ---------- réglages (modifiables depuis /admin) ----------
-  var masques = [];
+  var masques = [], masquesAvec = [];
   function applySettings(s) {
     s = s || {};
     masques = Array.isArray(s.masques) ? s.masques : [];
+    masquesAvec = Array.isArray(s.masquesAvec) ? s.masquesAvec : [];
     if (lastData) render(lastData);
+    if (lastAvec) renderAvec(lastAvec);
+    if (s.avecOuvert === false) {
+      avecForm.hidden = true;
+      $("#avec-closed").hidden = false;
+    }
     renderSac(s.sac);
     var banner = $("#annonce");
     if (s.annonce) { banner.textContent = s.annonce; banner.hidden = false; }
@@ -162,20 +168,53 @@
     if (!hasRepo) { showError("Le site n'est pas encore relié à un repo GitHub (voir config.js)."); return; }
     showError("");
 
-    var url = "https://github.com/" + cfg.owner + "/" + cfg.repo + "/issues/new?" + [
+    var url = issueUrl([
       ["template", "inscription.yml"],
       ["title", "[Inscription] " + v.prenom],
       ["prenom", v.prenom],
       ["personnes", String(v.personnes)],
       ["lieux", v.lieux],
       ["message", v.message]
-    ].map(function (kv) { return kv[0] + "=" + encodeURIComponent(kv[1]); }).join("&");
+    ]);
 
+    openGithub(url);
+    pollFor(v.prenom, load);
+  });
+
+  function issueUrl(params) {
+    return "https://github.com/" + cfg.owner + "/" + cfg.repo + "/issues/new?" +
+      params.map(function (kv) { return kv[0] + "=" + encodeURIComponent(kv[1]); }).join("&");
+  }
+
+  function openGithub(url) {
     $("#sent-link").href = url;
     window.open(url, "_blank", "noopener");
     var dlg = $("#sent");
     if (dlg.showModal) dlg.showModal(); else alert("Sur la page GitHub, cliquez sur « Create ».");
-    pollFor(v.prenom);
+  }
+
+  // ---------- formulaire « avec Marin » ----------
+  var avecForm = $("#avec-form");
+  var avecErr = $("#avec-error");
+  function avecError(msg) { avecErr.textContent = msg; avecErr.hidden = !msg; }
+
+  avecForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var prenom = avecForm.elements.prenom.value.trim();
+    var epreuves = $$("input[name=epreuves]:checked", avecForm).map(function (x) { return x.value; });
+    avecForm.elements.prenom.setAttribute("aria-invalid", prenom ? "false" : "true");
+    if (!prenom) { avecError("Il manque ton prénom."); avecForm.elements.prenom.focus(); return; }
+    if (!epreuves.length) { avecError("Choisis au moins une épreuve : nage, vélo ou course."); return; }
+    if (!hasRepo) { avecError("Le site n'est pas encore relié à un repo GitHub (voir config.js)."); return; }
+    avecError("");
+    openGithub(issueUrl([
+      ["template", "avec-marin.yml"],
+      ["title", "[Avec Marin] " + prenom],
+      ["prenom", prenom],
+      ["epreuves", epreuves.join(", ")],
+      ["message", avecForm.elements.message.value.trim()]
+    ]));
+    pollFor(prenom, loadAvec);
   });
 
   // ---------- tableau des supporters ----------
@@ -219,13 +258,48 @@
     });
   }
 
+  // ---------- liste « avec Marin » ----------
+  var lastAvec = null;
+  function renderAvec(data) {
+    lastAvec = data;
+    var list = ((data && data.inscrits) || []).filter(function (x) { return masquesAvec.indexOf(x.id) === -1; });
+    $("#n-avec").textContent = list.length;
+    ["nage", "velo", "course"].forEach(function (k) {
+      var ul = $("[data-team=" + k + "]");
+      ul.textContent = "";
+      var team = list.filter(function (x) { return (x.epreuves || []).indexOf(k) !== -1; });
+      team.forEach(function (x) { ul.appendChild(el("li", x.prenom)); });
+      $("[data-count=" + k + "]").textContent = team.length;
+    });
+    var msgs = $("#avec-messages");
+    msgs.textContent = "";
+    list.forEach(function (x) {
+      if (!x.message) return;
+      var m = el("li");
+      m.appendChild(el("b", x.prenom));
+      m.appendChild(document.createTextNode(x.message));
+      msgs.appendChild(m);
+    });
+    $("#avec-status").textContent = list.length
+      ? "La liste se met à jour quelques minutes après chaque inscription."
+      : "Personne encore… lance-toi\u00a0!";
+    return list;
+  }
+
+  function loadAvec() {
+    return fetchData("avec-marin.json").then(renderAvec).catch(function () {
+      $("#avec-status").textContent = "Impossible de charger la liste pour le moment.";
+      return [];
+    });
+  }
+
   var pollTimer = null;
-  function pollFor(name) {
+  function pollFor(name, loader) {
     clearInterval(pollTimer);
     var tries = 0;
     pollTimer = setInterval(function () {
       tries++;
-      load().then(function (list) {
+      loader().then(function (list) {
         var found = list.some(function (x) { return x.prenom === name; });
         if (found || tries > 20) clearInterval(pollTimer);
       });
@@ -238,4 +312,5 @@
     .catch(function () { return fetchData("reglages.json"); })
     .then(applySettings, function () { applySettings({}); });
   load();
+  loadAvec();
 })();

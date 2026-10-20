@@ -5,15 +5,24 @@ avec l'inscription des supporters. Tout tourne sur **GitHub uniquement** : pas d
 
 - `docs/` : le site (HTML/CSS/JS, sans outil de build)
 - `docs/data/inscrits.json` : la « base de données » des inscrits, tenue à jour automatiquement
-- `.github/ISSUE_TEMPLATE/inscription.yml` : le formulaire d'inscription GitHub
+- `.github/ISSUE_TEMPLATE/inscription.yml` : le formulaire d'inscription des supporters
+- `.github/ISSUE_TEMPLATE/avec-marin.yml` : le formulaire « faire le triathlon avec Marin »
+- `docs/data/avec-marin.json` : ceux qui font le triathlon avec Marin (tenu à jour automatiquement)
 - `.github/workflows/inscriptions.yml` + `.github/scripts/inscriptions.js` : le robot qui range les inscriptions
 
 
 ## Comment ça marche
 
-1. Sur le site, un proche remplit le formulaire « Je viens encourager Marin ».
+Deux inscriptions sur le site :
+- **Supporters** (« Je viens encourager Marin ») : prénom, nombre de personnes, lieu, petit mot.
+- **Avec Marin** (« Fais le triathlon avec moi ») : prénom, épreuves (nage, vélo et/ou course), petit mot.
+  Sans engagement : une absence le jour J n'est pas grave.
+
+Les deux fonctionnent pareil :
+
+1. Sur le site, la personne remplit le formulaire.
 2. Une page GitHub s'ouvre avec une issue déjà remplie : il clique sur **Create**.
-3. Une GitHub Action lit l'issue, répond « Merci », et ajoute la personne dans `docs/data/inscrits.json`.
+3. Une GitHub Action lit l'issue, répond « Merci », et ajoute la personne dans `docs/data/inscrits.json` ou `docs/data/avec-marin.json`.
 4. Le site relit ce fichier : le prénom apparaît dans la liste en 1 à 5 minutes.
 
 > Il faut un compte GitHub (gratuit) pour s'inscrire. Les issues sont publiques :
@@ -40,9 +49,9 @@ Option : dans `docs/config.js`, mettre une adresse dans `contactEmail` pour affi
 https://triathlon-marin.vercel.app/admin/ — protégé par un code d'accès.
 
 - **Tableau de bord** : chiffres clés et graphiques (personnes par lieu, inscriptions dans le temps, taille des groupes, derniers petits mots).
-- **Inscrits** : la liste complète, avec « Retirer » / « Remettre ».
+- **Supporters** et **Avec Marin** : les listes complètes, avec « Retirer » / « Remettre ».
 - **Le sac** : modifier la liste à cocher du site.
-- **Réglages** : ouvrir/fermer les inscriptions, annonce en haut du site, e-mail pour ceux sans compte GitHub.
+- **Réglages** : ouvrir/fermer chaque inscription, annonce en haut du site, e-mail pour ceux sans compte GitHub.
 
 Le contenu de la présentation (textes, photos, dates) ne se modifie pas depuis l'admin.
 

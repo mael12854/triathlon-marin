@@ -49,8 +49,8 @@
 .tabs button[aria-selected=true] { background: var(--night); color: var(--on-night); }
 
 /* ---------- chiffres clés ---------- */
-.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-@media (max-width: 760px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+@media (max-width: 420px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
 .tile { background: var(--surface); border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 0 var(--line); }
 .tile-l { font-size: 14px; color: var(--muted); }
 .tile-v { font: 700 44px/1 var(--display); }
@@ -133,3 +133,10 @@
 .save-msg.ok { color: var(--green-ink); }
 .save-msg.err { color: var(--red-ink); }
 .readonly [data-needs-auth] { opacity: 0.55; }
+
+/* ---------- épreuves ---------- */
+.chip { display: inline-block; border-radius: 999px; padding: 2px 10px; margin: 0 4px 4px 0; font: 600 13px var(--display); color: var(--ink); white-space: nowrap; }
+.chip.nage { background: var(--blue); }
+.chip.velo { background: var(--orange); }
+.chip.course { background: var(--green); }
+.table td .chip:last-child { margin-right: 0; }

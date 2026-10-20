@@ -28,6 +28,7 @@
     <a href="#programme">Programme</a>
     <a href="#lieux">Lieux</a>
     <a href="#sac">Le sac</a>
+    <a href="#avec">Avec Marin</a>
     <a href="#inscription" class="pill-btn small">Je viens&nbsp;!</a>
   </nav>
 </header>
@@ -282,6 +283,55 @@
       <ul class="people" id="people"></ul>
       <ul class="messages" id="messages"></ul>
       <p class="fine" id="board-status">Chargement…</p>
+    </div>
+  </div>
+</section>
+
+<!-- Avec Marin (nouveau) -->
+<section class="sec bg-g signup" id="avec">
+  <div class="head">
+    <span class="kicker">Avec Marin</span>
+    <h2 class="h-l">Fais le triathlon avec moi&nbsp;!</h2>
+  </div>
+  <p class="lead">Choisis ce que tu fais avec moi&nbsp;: la nage, le vélo, la course… ou tout&nbsp;!</p>
+  <p class="no-stress">Sans engagement&nbsp;: si tu es absent le jour J, ce n'est pas grave&nbsp;!</p>
+  <div class="signup-grid">
+    <div class="panel closed" id="avec-closed" hidden>
+      <p class="h-m">Les inscriptions sont fermées.</p>
+      <p class="fine">Merci à tous ceux qui viennent avec Marin&nbsp;!</p>
+    </div>
+    <form class="panel" id="avec-form" novalidate>
+      <label class="field">
+        <span>Prénom(s)</span>
+        <input name="prenom" required maxlength="60" autocomplete="given-name" placeholder="Ex. Léa">
+      </label>
+      <fieldset class="field">
+        <legend>Je fais avec Marin… <em>(une ou plusieurs)</em></legend>
+        <div class="choices multi">
+          <label class="choice c-b"><input type="checkbox" name="epreuves" value="Nage"><span>Nage</span></label>
+          <label class="choice c-o"><input type="checkbox" name="epreuves" value="Vélo"><span>Vélo</span></label>
+          <label class="choice c-g"><input type="checkbox" name="epreuves" value="Course"><span>Course</span></label>
+        </div>
+      </fieldset>
+      <label class="field">
+        <span>Un petit mot pour Marin <em>(facultatif)</em></span>
+        <textarea name="message" rows="3" maxlength="280" placeholder="On pédale ensemble !"></textarea>
+      </label>
+      <p class="form-error" id="avec-error" role="alert" hidden></p>
+      <button class="pill-btn dark wide" type="submit">Je fais le triathlon avec Marin</button>
+      <p class="fine">L'inscription s'enregistre sur GitHub&nbsp;: une page GitHub s'ouvre, il suffit de cliquer sur <strong>«&nbsp;Create&nbsp;»</strong>. Il faut un compte GitHub (gratuit). Ce que vous écrivez est public&nbsp;: mettez seulement un prénom.</p>
+    </form>
+    <div class="panel board" aria-live="polite">
+      <div class="tally">
+        <div><span class="tally-n" id="n-avec">0</span><span class="tally-l">avec Marin</span></div>
+      </div>
+      <div class="teams">
+        <div class="team"><p class="team-h"><i class="b"></i>Nage <span data-count="nage">0</span></p><ul data-team="nage"></ul></div>
+        <div class="team"><p class="team-h"><i class="o"></i>Vélo <span data-count="velo">0</span></p><ul data-team="velo"></ul></div>
+        <div class="team"><p class="team-h"><i class="g"></i>Course <span data-count="course">0</span></p><ul data-team="course"></ul></div>
+      </div>
+      <ul class="messages" id="avec-messages"></ul>
+      <p class="fine" id="avec-status">Chargement…</p>
     </div>
   </div>
 </section>

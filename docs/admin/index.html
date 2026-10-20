@@ -51,7 +51,8 @@
   <div class="bar">
     <div class="tabs" role="tablist" aria-label="Sections de l'admin">
     <button role="tab" aria-selected="true" aria-controls="tab-stats" id="t-stats">Tableau de bord</button>
-    <button role="tab" aria-selected="false" aria-controls="tab-people" id="t-people">Inscrits</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-people" id="t-people">Supporters</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-avec" id="t-avec">Avec Marin</button>
     <button role="tab" aria-selected="false" aria-controls="tab-sac" id="t-sac">Le sac</button>
     <button role="tab" aria-selected="false" aria-controls="tab-settings" id="t-settings">Réglages</button>
     </div>
@@ -63,6 +64,7 @@
     <div class="tiles">
       <div class="tile"><span class="tile-l">Supporters attendus</span><span class="tile-v" id="k-personnes">–</span></div>
       <div class="tile"><span class="tile-l">Inscriptions</span><span class="tile-v" id="k-inscriptions">–</span></div>
+      <div class="tile"><span class="tile-l">Avec Marin</span><span class="tile-v" id="k-avec">–</span></div>
       <div class="tile"><span class="tile-l">Petits mots</span><span class="tile-v" id="k-messages">–</span></div>
       <div class="tile"><span class="tile-l">Retirées</span><span class="tile-v" id="k-retires">–</span></div>
     </div>
@@ -70,6 +72,10 @@
       <figure class="box chart">
         <figcaption><span class="chart-t">Où seront les supporters</span><span class="chart-s">Nombre de personnes, par lieu</span></figcaption>
         <div class="chart-body" id="chart-lieux"></div>
+      </figure>
+      <figure class="box chart">
+        <figcaption><span class="chart-t">Qui fait quoi avec Marin</span><span class="chart-s">Nombre de personnes par épreuve</span></figcaption>
+        <div class="chart-body" id="chart-avec"></div>
       </figure>
       <figure class="box chart">
         <figcaption><span class="chart-t">Supporters au fil du temps</span><span class="chart-s">Total cumulé de personnes inscrites</span></figcaption>
@@ -91,14 +97,31 @@
   <section role="tabpanel" id="tab-people" aria-labelledby="t-people" class="panel-stack" hidden>
     <div class="box">
       <div class="box-head">
-        <h2 class="box-t">Toutes les inscriptions</h2>
-        <button type="button" class="pill-btn small" id="refresh">Actualiser</button>
+        <h2 class="box-t">Supporters</h2>
+        <button type="button" class="pill-btn small" data-refresh>Actualiser</button>
       </div>
       <p class="note">«&nbsp;Retirer&nbsp;» cache la personne du site, «&nbsp;Remettre&nbsp;» l'affiche à nouveau. Une nouvelle inscription apparaît ici 1 à 5 minutes après avoir été envoyée.</p>
       <div class="table-wrap">
         <table class="table">
           <thead><tr><th>#</th><th>Prénom(s)</th><th class="n">Pers.</th><th>Lieu</th><th>Petit mot</th><th>Date</th><th>Statut</th><th></th></tr></thead>
           <tbody id="people-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Avec Marin -->
+  <section role="tabpanel" id="tab-avec" aria-labelledby="t-avec" class="panel-stack" hidden>
+    <div class="box">
+      <div class="box-head">
+        <h2 class="box-t">Ceux qui font le triathlon avec Marin</h2>
+        <button type="button" class="pill-btn small" data-refresh>Actualiser</button>
+      </div>
+      <p class="note">«&nbsp;Retirer&nbsp;» cache la personne du site, «&nbsp;Remettre&nbsp;» l'affiche à nouveau. C'est sans engagement pour eux&nbsp;: une absence le jour J n'est pas grave.</p>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>#</th><th>Prénom(s)</th><th>Épreuves</th><th>Petit mot</th><th>Date</th><th>Statut</th><th></th></tr></thead>
+          <tbody id="avec-rows"></tbody>
         </table>
       </div>
     </div>
@@ -131,7 +154,12 @@
       <label class="switch">
         <input type="checkbox" id="s-open">
         <span class="switch-ui" aria-hidden="true"></span>
-        <span><strong>Inscriptions ouvertes</strong><br><small>Décochez pour remplacer le formulaire par «&nbsp;Les inscriptions sont fermées&nbsp;».</small></span>
+        <span><strong>Inscriptions des supporters ouvertes</strong><br><small>Décochez pour remplacer le formulaire par «&nbsp;Les inscriptions sont fermées&nbsp;».</small></span>
+      </label>
+      <label class="switch">
+        <input type="checkbox" id="s-avec">
+        <span class="switch-ui" aria-hidden="true"></span>
+        <span><strong>Inscriptions «&nbsp;avec Marin&nbsp;» ouvertes</strong><br><small>Pour ceux qui font le triathlon avec Marin.</small></span>
       </label>
       <label class="afield">
         <span>Annonce en haut du site <em>(vide = pas d'annonce)</em></span>

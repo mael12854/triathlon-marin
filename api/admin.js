@@ -20,11 +20,12 @@ function sameCode(given) {
   return crypto.timingSafeEqual(a, b);
 }
 
-// La liste des inscrits est tenue à jour par l'Action GitHub dans le repo (public).
-async function readInscriptions() {
-  const url = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/docs/data/inscrits.json?t=${Date.now()}`;
+// Les listes sont tenues à jour par l'Action GitHub dans le repo (public).
+async function readList(file) {
+  const url = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/docs/data/${file}?t=${Date.now()}`;
   const r = await fetch(url, { cache: "no-store" });
-  if (!r.ok) throw new Error("Liste des inscrits introuvable sur GitHub (" + r.status + ").");
+  if (r.status === 404) return [];
+  if (!r.ok) throw new Error("Liste introuvable sur GitHub (" + r.status + ").");
   const data = await r.json();
   return (data.inscrits || []).map((x) => ({ ...x, url: `https://github.com/${OWNER}/${REPO}/issues/${x.id}` }));
 }
@@ -52,10 +53,12 @@ module.exports = async (req, res) => {
         return res.json({ ok: true, canWrite });
 
       case "data": {
-        const [inscriptions, reglages] = await Promise.all([readInscriptions(), readSettings()]);
+        const [inscriptions, avec, reglages] = await Promise.all([readList("inscrits.json"), readList("avec-marin.json"), readSettings()]);
         const masques = new Set(reglages.masques);
+        const masquesAvec = new Set(reglages.masquesAvec);
         return res.json({
           inscriptions: inscriptions.map((x) => ({ ...x, retire: masques.has(x.id) })),
+          avec: avec.map((x) => ({ ...x, retire: masquesAvec.has(x.id) })),
           reglages,
           canWrite,
         });
@@ -66,10 +69,11 @@ module.exports = async (req, res) => {
         if (!canWrite) return res.status(503).json({ error: "Le stockage Vercel Blob n'est pas encore relié au projet." });
         const n = parseInt(body.number, 10);
         if (!n) return res.status(400).json({ error: "Numéro manquant." });
+        const key = body.liste === "avec" ? "masquesAvec" : "masques";
         const current = await readSettings();
-        const set = new Set(current.masques);
+        const set = new Set(current[key]);
         if (body.action === "hide") set.add(n); else set.delete(n);
-        const saved = await writeSettings({ ...current, masques: [...set] });
+        const saved = await writeSettings({ ...current, [key]: [...set] });
         return res.json({ ok: true, reglages: saved });
       }
 
@@ -77,7 +81,7 @@ module.exports = async (req, res) => {
         if (!canWrite) return res.status(503).json({ error: "Le stockage Vercel Blob n'est pas encore relié au projet." });
         const current = await readSettings();
         // Les inscriptions masquées ne se changent que par « Retirer » / « Remettre ».
-        const saved = await writeSettings({ ...(body.reglages || {}), masques: current.masques });
+        const saved = await writeSettings({ ...(body.reglages || {}), masques: current.masques, masquesAvec: current.masquesAvec });
         return res.json({ ok: true, reglages: saved });
       }
 

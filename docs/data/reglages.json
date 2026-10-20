@@ -1,5 +1,6 @@
 {
   "inscriptionsOuvertes": true,
+  "avecOuvert": true,
   "annonce": "",
   "contactEmail": "",
   "sac": {
@@ -23,5 +24,6 @@
       "Goûter"
     ]
   },
-  "masques": []
+  "masques": [],
+  "masquesAvec": []
 }

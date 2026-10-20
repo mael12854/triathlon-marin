@@ -1,0 +1,31 @@
+name: Faire le triathlon avec Marin
+description: Je nage, je pédale ou je cours avec Marin !
+title: "[Avec Marin] "
+labels: ["avec-marin"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Super ! Vérifiez vos infos puis cliquez sur **Create** en bas de la page.
+        C'est sans engagement : si vous êtes absent le jour J, ce n'est pas grave.
+        Tout ce qui est écrit ici est public : mettez seulement un prénom.
+  - type: input
+    id: prenom
+    attributes:
+      label: Prénom(s)
+      placeholder: Léa
+    validations:
+      required: true
+  - type: input
+    id: epreuves
+    attributes:
+      label: Épreuves avec Marin
+      description: "Nage, Vélo et/ou Course"
+      placeholder: Vélo, Course
+    validations:
+      required: true
+  - type: textarea
+    id: message
+    attributes:
+      label: Un petit mot pour Marin
+      placeholder: On pédale ensemble !

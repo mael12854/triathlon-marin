@@ -1,8 +1,8 @@
 name: Inscriptions
 
 # Chaque inscription arrive comme une issue GitHub.
-# Ce workflow recopie toutes les inscriptions dans docs/data/inscrits.json,
-# le fichier que le site affiche.
+# Ce workflow recopie les inscriptions dans docs/data/inscrits.json (supporters)
+# et docs/data/avec-marin.json (ceux qui font le triathlon avec Marin) : le site affiche ces fichiers.
 on:
   issues:
     types: [opened, edited, closed, reopened, labeled, unlabeled, deleted]
@@ -21,7 +21,9 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       startsWith(github.event.issue.title, '[Inscription]') ||
-      contains(github.event.issue.labels.*.name, 'inscription')
+      startsWith(github.event.issue.title, '[Avec Marin]') ||
+      contains(github.event.issue.labels.*.name, 'inscription') ||
+      contains(github.event.issue.labels.*.name, 'avec-marin')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,7 +39,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/inscrits.json
+          git add docs/data/inscrits.json docs/data/avec-marin.json
           if git diff --cached --quiet; then
             echo "Rien de nouveau."
             exit 0
