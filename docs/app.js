@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var cfg = Object.assign({ owner: "", repo: "", branch: "main", date: "2026-10-18", contactEmail: "" }, window.TRIATHLON_CONFIG || {});
+  var cfg = Object.assign({ owner: "", repo: "", branch: "main", date: "2026-10-18", contactEmail: "", archive: false }, window.TRIATHLON_CONFIG || {});
 
   // Sur GitHub Pages, devine le compte et le repo depuis l'adresse.
   (function guessRepo() {
@@ -35,7 +35,8 @@
 
   // ---------- fichier agenda (.ics) ----------
   var ics = $("[data-ics]");
-  if (ics) {
+  if (ics && cfg.archive) ics.hidden = true;
+  else if (ics) {
     var d = cfg.date.replace(/-/g, "");
     var p = cfg.date.split("-").map(Number);
     var next = new Date(Date.UTC(p[0], p[1] - 1, p[2] + 1)).toISOString().slice(0, 10).replace(/-/g, "");
@@ -123,6 +124,14 @@
     }
     if (s.contactEmail) cfg.contactEmail = s.contactEmail;
     setupMail();
+    // Page d'archive : tout est figé, pas de formulaires.
+    if (cfg.archive) {
+      form.hidden = true;
+      $("#signup-closed").hidden = false;
+      avecForm.hidden = true;
+      $("#avec-closed").hidden = false;
+      $("#mail-fallback").hidden = true;
+    }
   }
 
   // ---------- formulaire d'inscription ----------
@@ -246,8 +255,8 @@
       }
     });
     status.textContent = list.length
-      ? "La liste se met à jour quelques minutes après chaque inscription."
-      : "Personne encore… soyez le premier ou la première !";
+      ? (cfg.archive ? "" : "La liste se met à jour quelques minutes après chaque inscription.")
+      : (cfg.archive ? "Pas d'inscription cette fois-ci." : "Personne encore… soyez le premier ou la première !");
     return list;
   }
 
@@ -281,8 +290,8 @@
       msgs.appendChild(m);
     });
     $("#avec-status").textContent = list.length
-      ? "La liste se met à jour quelques minutes après chaque inscription."
-      : "Personne encore… lance-toi\u00a0!";
+      ? (cfg.archive ? "" : "La liste se met à jour quelques minutes après chaque inscription.")
+      : (cfg.archive ? "Personne cette fois-ci." : "Personne encore… lance-toi\u00a0!");
     return list;
   }
 
@@ -307,7 +316,7 @@
   }
 
   // Réglages de l'admin (Vercel), sinon ceux du repo.
-  fetch("/api/reglages", { cache: "no-store" })
+  (cfg.archive ? Promise.reject(new Error("archive")) : fetch("/api/reglages", { cache: "no-store" }))
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .catch(function () { return fetchData("reglages.json"); })
     .then(applySettings, function () { applySettings({}); });

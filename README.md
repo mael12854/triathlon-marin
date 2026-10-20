@@ -44,6 +44,16 @@ Le compte et le repo GitHub sont indiqués dans `docs/config.js`.
 Option : dans `docs/config.js`, mettre une adresse dans `contactEmail` pour afficher un lien
 « Pas de compte GitHub ? Envoyez-nous un e-mail ».
 
+## Anciens triathlons : `/anciens`
+
+- `docs/anciens/index.html` : la page qui liste les anciens triathlons.
+- `docs/anciens/2e-triathlon/` : copie figée du site du 2e triathlon (18 octobre 2026), avec ses propres
+  photos, styles et données (supporters, sac). Elle ne dépend plus du reste : on peut modifier la page
+  d'accueil pour le triathlon suivant sans la casser.
+
+Pour archiver un triathlon : copier `docs/` (sans `admin/` ni `anciens/`) dans `docs/anciens/<nom>/`,
+y figer les fichiers de `data/` et mettre `archive: true` dans son `config.js`.
+
 ## Espace admin : `/admin`
 
 https://triathlon-marin.vercel.app/admin/ — protégé par un code d'accès.

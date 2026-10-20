@@ -1,0 +1,28 @@
+{
+  "inscriptionsOuvertes": false,
+  "avecOuvert": false,
+  "annonce": "",
+  "contactEmail": "",
+  "sac": {
+    "nage": [
+      "Maillot",
+      "Bonnet",
+      "Lunettes",
+      "Serviette"
+    ],
+    "velo": [
+      "Vélo vérifié",
+      "Casque",
+      "Gants",
+      "Tenue de vélo"
+    ],
+    "course": [
+      "Baskets",
+      "Dossard",
+      "Gourde",
+      "Goûter"
+    ]
+  },
+  "masques": [],
+  "masquesAvec": []
+}
