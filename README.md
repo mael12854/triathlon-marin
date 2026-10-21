@@ -1,7 +1,8 @@
 # Le triathlon de Marin 🏊 🚲 🏃
 
-Le site de Marin (6 ans) pour son triathlon du **dimanche 18 octobre** à Issy-les-Moulineaux,
-avec l'inscription des supporters. Tout tourne sur **GitHub uniquement** : pas de serveur, pas de Supabase.
+Le site du **3e triathlon** de Marin (date à venir) à Issy-les-Moulineaux, avec l'inscription des supporters
+et de ceux qui font le triathlon avec lui. Les triathlons précédents sont dans `/anciens`.
+Tout tourne sur **GitHub** et **Vercel** : pas de serveur à gérer.
 
 - `docs/` : le site (HTML/CSS/JS, sans outil de build)
 - `docs/data/inscrits.json` : la « base de données » des inscrits, tenue à jour automatiquement
@@ -44,6 +45,18 @@ Le compte et le repo GitHub sont indiqués dans `docs/config.js`.
 Option : dans `docs/config.js`, mettre une adresse dans `contactEmail` pour afficher un lien
 « Pas de compte GitHub ? Envoyez-nous un e-mail ».
 
+## Triathlon en cours (3e)
+
+- **Date** : dans `docs/config.js` (`date: "2027-06-13"` par exemple) pour le compte à rebours et le bouton
+  agenda, et dans `docs/index.html` (rubrique « Rendez-vous » et bas de page) pour le texte affiché.
+  Tant qu'elle est vide, le site affiche « Date à venir ».
+- **Listes** : seules les inscriptions créées après `DEPUIS` (dans `.github/scripts/inscriptions.js`)
+  comptent ; celles du 2e triathlon restent dans GitHub et dans l'archive.
+
+## Page 404
+
+`docs/404.html` s'affiche pour toute adresse qui n'existe pas (chemins absolus, elle marche partout).
+
 ## Anciens triathlons : `/anciens`
 
 - `docs/anciens/index.html` : la page qui liste les anciens triathlons.
@@ -54,7 +67,8 @@ Option : dans `docs/config.js`, mettre une adresse dans `contactEmail` pour affi
 Pour archiver un triathlon : copier `docs/` (sans `admin/` ni `anciens/`) dans `docs/anciens/<nom>/`,
 y figer les fichiers de `data/`, mettre `archive: true` dans son `config.js`, et retirer
 les formulaires (`<form>`) et la fenêtre `<dialog id="sent">` de son `index.html` : on ne peut plus s'inscrire
-à un ancien triathlon.
+à un ancien triathlon. Ensuite, sur la page d'accueil : nouveaux textes, `date` dans `config.js`, et
+`DEPUIS` mis à la date du jour dans `.github/scripts/inscriptions.js` pour repartir de listes vides.
 
 ## Espace admin : `/admin`
 

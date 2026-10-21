@@ -6,8 +6,9 @@ window.TRIATHLON_CONFIG = {
   repo: "triathlon-marin",
   // Branche où le fichier des inscriptions est enregistré.
   branch: "main",
-  // Jour de la course (année-mois-jour).
-  date: "2026-10-18",
+  // Jour de la course (année-mois-jour), ex. "2027-06-13". Vide = date pas encore connue
+  // (pas de compte à rebours ni de bouton agenda).
+  date: "",
   // Adresse e-mail pour les proches sans compte GitHub (laisser vide pour masquer).
   contactEmail: ""
 };

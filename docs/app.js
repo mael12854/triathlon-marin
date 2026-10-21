@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var cfg = Object.assign({ owner: "", repo: "", branch: "main", date: "2026-10-18", contactEmail: "", archive: false }, window.TRIATHLON_CONFIG || {});
+  var cfg = Object.assign({ owner: "", repo: "", branch: "main", date: "", contactEmail: "", archive: false }, window.TRIATHLON_CONFIG || {});
 
   // Sur GitHub Pages, devine le compte et le repo depuis l'adresse.
   (function guessRepo() {
@@ -21,6 +21,7 @@
 
   // ---------- compte à rebours ----------
   function countdownText() {
+    if (!cfg.date) return ""; // date pas encore connue
     var p = cfg.date.split("-").map(Number);
     var race = new Date(p[0], p[1] - 1, p[2]);
     var now = new Date();
@@ -35,7 +36,7 @@
 
   // ---------- fichier agenda (.ics) ----------
   var ics = $("[data-ics]");
-  if (ics && cfg.archive) ics.hidden = true;
+  if (ics && (cfg.archive || !cfg.date)) ics.hidden = true;
   else if (ics) {
     var d = cfg.date.replace(/-/g, "");
     var p = cfg.date.split("-").map(Number);

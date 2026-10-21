@@ -8,6 +8,11 @@ const path = require("path");
 
 const { toEntry, toAvecEntry, isRemoved } = require("../../lib/inscription.js");
 
+// Début des inscriptions du triathlon en cours (3e) : les issues plus anciennes
+// appartiennent aux triathlons d'avant (voir docs/anciens/) et ne comptent plus.
+// Pour le triathlon suivant : archiver le site, puis mettre ici la date du jour.
+const DEPUIS = "2026-10-21T11:29:25Z";
+
 const KINDS = [
   {
     label: "inscription",
@@ -61,6 +66,7 @@ async function sync(kind, { github, context, core }) {
 
   const list = issues
     .filter((i) => !i.pull_request && !isRemoved(i) && i.number !== deleted)
+    .filter((i) => new Date(i.created_at) >= new Date(DEPUIS))
     .map(kind.toEntry)
     .filter(Boolean)
     .sort((a, b) => a.id - b.id);

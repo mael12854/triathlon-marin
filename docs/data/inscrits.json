@@ -1,29 +1,4 @@
 {
-  "updated": "2026-10-18T11:54:34.471Z",
-  "inscrits": [
-    {
-      "id": 1,
-      "prenom": "Maël - Tournage",
-      "personnes": 1,
-      "lieux": "Piscine + parc",
-      "message": "ALLEZ MARIN !!!",
-      "date": "2026-10-18T09:19:20Z"
-    },
-    {
-      "id": 2,
-      "prenom": "Maman",
-      "personnes": 1,
-      "lieux": "Parc",
-      "message": "Allez mon cœur ❤️",
-      "date": "2026-10-18T11:51:28Z"
-    },
-    {
-      "id": 3,
-      "prenom": "Papa",
-      "personnes": 1,
-      "lieux": "Piscine + parc",
-      "message": "",
-      "date": "2026-10-18T11:54:19Z"
-    }
-  ]
+  "updated": null,
+  "inscrits": []
 }
